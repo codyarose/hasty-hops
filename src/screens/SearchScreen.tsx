@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { client } from '../utils/api-client'
 import { useQuery } from 'react-query'
 import { CapSpinner } from '../components/CapSpinner'
@@ -18,7 +18,7 @@ import {
 } from 'semantic-ui-react'
 import { useCurrentWindowWidth } from '../utils/useCurrentWindowWidth'
 
-interface APIError extends Error {
+export interface APIError extends Error {
 	meta: {
 		error_detail: string
 	}
@@ -34,12 +34,14 @@ interface Beer {
 }
 
 interface BeerSearchResponse {
-	found: number
-	beers: {
-		count: number
-		items: {
-			beer: Beer
-		}[]
+	response: {
+		found: number
+		beers: {
+			count: number
+			items: {
+				beer: Beer
+			}[]
+		}
 	}
 }
 
@@ -54,17 +56,17 @@ const SearchScreen = (): JSX.Element => {
 	const { data, isLoading, isError, isSuccess, error, refetch } = useQuery<BeerSearchResponse, APIError>(
 		['beerSearch', { query }, { offset }],
 		() =>
-			client(`search/beer`, {
+			client<BeerSearchResponse>(`search/beer`, {
 				q: encodeURIComponent(query),
 				offset,
 				limit,
-			}).then((data) => data.response),
+			}).then((data) => data),
 		{
 			enabled: query !== '',
 			refetchOnWindowFocus: false,
 		},
 	)
-	console.log({ data })
+	const beersData = data ? data.response : null
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -122,13 +124,13 @@ const SearchScreen = (): JSX.Element => {
 					/>
 				)
 			)}
-			{isSuccess && data && (
+			{isSuccess && beersData && (
 				<div>
-					<Divider horizontal section content={`Results: ${data.found}`} />
-					{data.beers.count > 0 ? (
+					<Divider horizontal section content={`Results: ${beersData.found}`} />
+					{beersData.beers.count > 0 ? (
 						<>
 							<Card.Group centered>
-								{data.beers.items.map((item) => {
+								{beersData.beers.items.map((item) => {
 									const {
 										beer: { bid, beer_name, beer_label, beer_abv, beer_ibu, beer_style },
 									} = item
@@ -175,14 +177,14 @@ const SearchScreen = (): JSX.Element => {
 											: null
 									}
 									nextItem={
-										activePage !== Math.ceil(data.found / limit)
+										activePage !== Math.ceil(beersData.found / limit)
 											? {
 													content: <Icon name="angle right" />,
 													icon: true,
 											  }
 											: null
 									}
-									totalPages={Math.ceil(data.found / limit)}
+									totalPages={Math.ceil(beersData.found / limit)}
 									onPageChange={handleChangePage}
 								/>
 							</div>
