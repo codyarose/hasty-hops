@@ -1,17 +1,17 @@
-import {useQuery} from 'react-query'
+import React from 'react'
+import { useQuery } from 'react-query'
 import { useParams } from 'react-router-dom'
-import {client} from '../utils/api-client'
-import {CapSpinner} from '../components/CapSpinner'
+import { client } from '../utils/api-client'
+import { CapSpinner } from '../components/CapSpinner'
 
 interface BeerInfoParams {
 	bid: string
 }
 
-const BeerInfoScreen = () => {
-	const {bid} = useParams<BeerInfoParams>()
-	const { data: beer, isLoading, isError, isSuccess } = useQuery(
-		bid,
-		() => client(`beer/info/${bid}`).then((data) => data.response.beer),
+const BeerInfoScreen = (): JSX.Element => {
+	const { bid } = useParams<BeerInfoParams>()
+	const { data: beer, isLoading, isError, isSuccess } = useQuery(bid, () =>
+		client(`beer/info/${bid}`).then((data) => data.response.beer),
 	)
 
 	return (
@@ -29,4 +29,4 @@ const BeerInfoScreen = () => {
 	)
 }
 
-export {BeerInfoScreen}
+export { BeerInfoScreen }

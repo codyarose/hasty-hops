@@ -1,8 +1,9 @@
+import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import {BeerInfoScreen} from './screens/BeerInfoScreen'
-import {SearchScreen} from './screens/SearchScreen'
+import { BeerInfoScreen } from './screens/BeerInfoScreen'
+import { SearchScreen } from './screens/SearchScreen'
 
-const App = () => {
+const App = (): JSX.Element => {
 	return (
 		<Router>
 			<Switch>
