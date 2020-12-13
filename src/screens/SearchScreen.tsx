@@ -1,8 +1,9 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { client } from '../utils/api-client'
 import { useQuery } from 'react-query'
+import queryString from 'query-string'
 import { CapSpinner } from '../components/CapSpinner'
-import { Link } from 'react-router-dom'
+import { Link, useHistory, useLocation } from 'react-router-dom'
 import {
 	Container,
 	Input,
@@ -46,13 +47,24 @@ interface BeerSearchResponse {
 }
 
 const SearchScreen = (): JSX.Element => {
+	const history = useHistory()
+	const { pathname } = useLocation()
 	const [query, setQuery] = useState('')
 	const [offset, setOffset] = useState(0)
 	const [activePage, setActivePage] = useState(1)
 	const windowWidth = useCurrentWindowWidth()
 	const isMobile = windowWidth > 500
-
 	const limit = 25
+
+	useEffect(() => {
+		if (history.location.search !== `?query=${query}`) {
+			const { query } = queryString.parse(history.location.search)
+			if (typeof query === 'string') {
+				setQuery(query)
+			}
+		}
+	}, [history.location.search])
+
 	const { data, isLoading, isError, isSuccess, error, refetch } = useQuery<BeerSearchResponse, APIError>(
 		['beerSearch', { query }, { offset }],
 		() =>
@@ -71,6 +83,7 @@ const SearchScreen = (): JSX.Element => {
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const { value } = e.currentTarget.elements.namedItem('search') as HTMLInputElement
+		history.push(`${pathname}?query=${value}`)
 		setQuery(value)
 	}
 	const handleChangePage = (_e: unknown, data: StrictPaginationProps) => {
