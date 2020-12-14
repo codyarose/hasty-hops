@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
-import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
+import { Switch, Route, useHistory } from 'react-router-dom'
 import queryString from 'query-string'
 import { Container, Header, Icon, Divider, Input, Ref } from 'semantic-ui-react'
 import { BeerInfoScreen } from './screens/BeerInfoScreen'
@@ -7,23 +7,24 @@ import { SearchScreen } from './screens/SearchScreen'
 
 const App = (): JSX.Element => {
 	const history = useHistory()
-	const { pathname } = useLocation()
 	const [query, setQuery] = useState('')
 	const inputRef = useRef<HTMLInputElement>(null)
 
 	useEffect(() => {
-		if (history.location.search !== `?query=${query}`) {
-			const { query } = queryString.parse(history.location.search)
-			if (typeof query === 'string') {
-				setQuery(query)
+		return history.listen((location) => {
+			if (location.search !== `?query=${query}`) {
+				const { query } = queryString.parse(history.location.search)
+				if (typeof query === 'string') {
+					setQuery(query)
+				}
 			}
-		}
-	}, [history.location.search])
+		})
+	}, [history])
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const { value } = e.currentTarget.elements.namedItem('search') as HTMLInputElement
-		history.push(`${pathname}?query=${value}`)
+		history.push(`/?query=${value}`)
 		setQuery(value)
 		if (inputRef.current) {
 			;(inputRef.current.children.namedItem('search') as HTMLInputElement).blur()
