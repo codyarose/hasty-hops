@@ -22,7 +22,7 @@ export interface APIError extends Error {
 	}
 }
 
-interface Beer {
+export interface Beer {
 	bid: number
 	beer_name: string
 	beer_label: string
@@ -75,7 +75,7 @@ const SearchScreen = ({ query }: { query: string }): JSX.Element => {
 	}
 
 	return (
-		<Container style={{ padding: '3rem 0' }}>
+		<Container>
 			{isLoading ? (
 				<div
 					style={{
