@@ -1,19 +1,16 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { client } from '../utils/api-client'
 import { useQuery } from 'react-query'
-import queryString from 'query-string'
 import { CapSpinner } from '../components/CapSpinner'
-import { Link, useHistory, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
 	Container,
-	Input,
 	Card,
 	Image,
 	Divider,
 	Grid,
 	Pagination,
 	Icon,
-	Header,
 	Message,
 	StrictPaginationProps,
 } from 'semantic-ui-react'
@@ -46,24 +43,12 @@ interface BeerSearchResponse {
 	}
 }
 
-const SearchScreen = (): JSX.Element => {
-	const history = useHistory()
-	const { pathname } = useLocation()
-	const [query, setQuery] = useState('')
+const SearchScreen = ({ query }: { query: string }): JSX.Element => {
 	const [offset, setOffset] = useState(0)
 	const [activePage, setActivePage] = useState(1)
 	const windowWidth = useCurrentWindowWidth()
 	const isMobile = windowWidth > 500
 	const limit = 25
-
-	useEffect(() => {
-		if (history.location.search !== `?query=${query}`) {
-			const { query } = queryString.parse(history.location.search)
-			if (typeof query === 'string') {
-				setQuery(query)
-			}
-		}
-	}, [history.location.search])
 
 	const { data, isLoading, isError, isSuccess, error, refetch } = useQuery<BeerSearchResponse, APIError>(
 		['beerSearch', { query }, { offset }],
@@ -80,12 +65,6 @@ const SearchScreen = (): JSX.Element => {
 	)
 	const beersData = data ? data.response : null
 
-	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const { value } = e.currentTarget.elements.namedItem('search') as HTMLInputElement
-		history.push(`${pathname}?query=${value}`)
-		setQuery(value)
-	}
 	const handleChangePage = (_e: unknown, data: StrictPaginationProps) => {
 		const { activePage } = data
 		if (activePage && typeof activePage === 'number') {
@@ -97,27 +76,6 @@ const SearchScreen = (): JSX.Element => {
 
 	return (
 		<Container style={{ padding: '3rem 0' }}>
-			<Container text textAlign="center">
-				<Header as="h1" icon textAlign="center">
-					<Icon name="beer" />
-					Hasty Hops
-					<Header.Subheader>Quick search for beers using React Query and Semantic UI</Header.Subheader>
-				</Header>
-				<Divider hidden />
-				<form onSubmit={handleSubmit}>
-					<Input
-						placeholder="Search..."
-						type="search"
-						name="search"
-						id="search"
-						size="big"
-						icon={<Icon name="search" />}
-						fluid
-						loading={isLoading}
-					/>
-				</form>
-			</Container>
-
 			{isLoading ? (
 				<div
 					style={{

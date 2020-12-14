@@ -1,15 +1,63 @@
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import { FormEvent, useEffect, useRef, useState } from 'react'
+import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
+import queryString from 'query-string'
+import { Container, Header, Icon, Divider, Input, Ref } from 'semantic-ui-react'
 import { BeerInfoScreen } from './screens/BeerInfoScreen'
 import { SearchScreen } from './screens/SearchScreen'
 
 const App = (): JSX.Element => {
+	const history = useHistory()
+	const { pathname } = useLocation()
+	const [query, setQuery] = useState('')
+	const inputRef = useRef<HTMLInputElement>(null)
+
+	useEffect(() => {
+		if (history.location.search !== `?query=${query}`) {
+			const { query } = queryString.parse(history.location.search)
+			if (typeof query === 'string') {
+				setQuery(query)
+			}
+		}
+	}, [history.location.search])
+
+	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		const { value } = e.currentTarget.elements.namedItem('search') as HTMLInputElement
+		history.push(`${pathname}?query=${value}`)
+		setQuery(value)
+		if (inputRef.current) {
+			;(inputRef.current.children.namedItem('search') as HTMLInputElement).blur()
+		}
+	}
+
 	return (
-		<Router>
+		<>
+			<Container text textAlign="center">
+				<Header as="h1" icon textAlign="center">
+					<Icon name="beer" />
+					Hasty Hops
+					<Header.Subheader>Quick search for beers using React Query and Semantic UI</Header.Subheader>
+				</Header>
+				<Divider hidden />
+				<form onSubmit={handleSubmit}>
+					<Ref innerRef={inputRef}>
+						<Input
+							placeholder="Search..."
+							type="search"
+							name="search"
+							id="search"
+							size="big"
+							icon={<Icon name="search" />}
+							fluid
+						/>
+					</Ref>
+				</form>
+			</Container>
 			<Switch>
-				<Route exact path="/" component={SearchScreen} />
+				<Route exact path="/" render={() => <SearchScreen query={query} />} />
 				<Route path="/beer/:bid" component={BeerInfoScreen} />
 			</Switch>
-		</Router>
+		</>
 	)
 }
 
