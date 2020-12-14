@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <h3 align="center">Hasty Hops</h3>
+  <h1 align="center">Hasty Hops</h1>
 
   <p align="center">
     Quick search for beers!
