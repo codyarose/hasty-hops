@@ -32,12 +32,17 @@ const App = (): JSX.Element => {
 	}
 
 	return (
-		<>
-			<Container text textAlign="center">
+		<div style={{ padding: '3rem 0' }}>
+			<Container text textAlign="center" style={{ paddingBottom: '3rem' }}>
 				<Header as="h1" icon textAlign="center">
 					<Icon name="beer" />
 					Hasty Hops
-					<Header.Subheader>Quick search for beers using React Query and Semantic UI</Header.Subheader>
+					<Header.Subheader style={{ marginTop: '1rem' }}>
+						Quick search for beers using React Query and Semantic UI
+						<p>
+							<a href="https://github.com/codyarose/hasty-hops">github</a>
+						</p>
+					</Header.Subheader>
 				</Header>
 				<Divider hidden />
 				<form onSubmit={handleSubmit}>
@@ -58,7 +63,7 @@ const App = (): JSX.Element => {
 				<Route exact path="/" render={() => <SearchScreen query={query} />} />
 				<Route path="/beer/:bid" component={BeerInfoScreen} />
 			</Switch>
-		</>
+		</div>
 	)
 }
 
